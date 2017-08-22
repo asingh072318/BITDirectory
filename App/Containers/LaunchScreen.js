@@ -20,7 +20,15 @@ class LaunchScreen extends Component {
   renderList = () => {
     var contact = this.props.vajra.contact;
     return contact.map((l, i) => {
-      let abc = <Avatar medium rounded title={l.name[0]} />;
+      let color = "#" + ((Math.random() * 0xffffff) << 0).toString(16);
+      let abc = (
+        <Avatar
+          medium
+          rounded
+          title={l.name[0]}
+          overlayContainerStyle={{ backgroundColor: color }}
+        />
+      );
       return (
         <ListItem
           key={i}
