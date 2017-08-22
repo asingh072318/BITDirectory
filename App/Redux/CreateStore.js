@@ -5,14 +5,14 @@ import createSagaMiddleware from 'redux-saga'
 import RehydrationServices from '../Services/RehydrationServices'
 import ReduxPersist from '../Config/ReduxPersist'
 import ScreenTracking from './ScreenTrackingMiddleware'
-
+import { CreateJumpstateMiddleware } from "jumpstate";
 // creates the store
 export default (rootReducer, rootSaga) => {
   /* ------------- Redux Configuration ------------- */
 
   const middleware = []
   const enhancers = []
-
+ middleware.push(CreateJumpstateMiddleware());
   /* ------------- Analytics Middleware ------------- */
   middleware.push(ScreenTracking)
 
