@@ -13,6 +13,9 @@ class LaunchScreen extends Component {
   constructor(props) {
     super(props);
     FirebaseUtils.initializeFirebase();
+    this.state = {
+      search: ""
+    };
   }
   componentWillMount() {
     FirebaseUtils.readContact();
@@ -20,30 +23,41 @@ class LaunchScreen extends Component {
   renderList = () => {
     var contact = this.props.vajra.contact;
     return contact.map((l, i) => {
-      let color = "#" + ((Math.random() * 0xffffff) << 0).toString(16);
-      let abc = (
-        <Avatar
-          medium
-          rounded
-          title={l.name[0]}
-          overlayContainerStyle={{ backgroundColor: color }}
-        />
-      );
-      return (
-        <ListItem
-          key={i}
-          title={l.name}
-          hideChevron
-          leftIcon={abc}
-          titleStyle={{ marginLeft: 15 }}
-        />
-      );
+      if (l.name.toLowerCase().indexOf(this.state.search) !== -1) {
+        let color = "#" + ((Math.random() * 0xffffff) << 0).toString(16);
+        let abc = (
+          <Avatar
+            medium
+            rounded
+            title={l.name[0]}
+            overlayContainerStyle={{ backgroundColor: color }}
+          />
+        );
+        return (
+          <ListItem
+            key={i}
+            title={l.name}
+            hideChevron
+            leftIcon={abc}
+            titleStyle={{
+              marginLeft: 15,
+              fontSize: 17
+            }}
+          />
+        );
+      }
     });
+  };
+  setSearch = text => {
+    this.setState({ search: text.toLowerCase() });
   };
   render() {
     return (
       <View style={{ backgroundColor: "white" }}>
-        <Search backgroundColor="red" />
+        <Search
+          backgroundColor="red"
+          onChangeText={text => this.setSearch(text)}
+        />
         <ScrollView style={{ backgroundColor: "white" }}>
           <List style={{ marginTop: 0 }}>
             {this.renderList()}
