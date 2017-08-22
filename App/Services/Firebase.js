@@ -16,27 +16,10 @@ function initializeFirebase() {
     if (__DEV__) console.log(errors);
   }
 }
-function pushDataValues(databaseRef, updatedData) {
-  try {
-    //console.log("ref is ", databaseRef);
-    databaseRef.update(updatedData);
-  } catch (errors) {
-    if (__DEV__) {
-      console.log(errors);
-    }
-  }
-}
-function readGames() {
-  firebase.database().ref("/games").once("value").then(function(snapshot) {
-    //console.log(snapshot.val());
-    Actions.VajraApp.updateGames(snapshot.val());
-  });
-}
-function readImages() {
-  firebase.database().ref("/Images").once("value").then(function(snapshot) {
-    //console.log(snapshot.val());
-    Actions.VajraApp.updateImages(snapshot.val());
+function readContact() {
+  firebase.database().ref("/").once("value").then(function(snapshot) {
+    Actions.VajraApp.getContact(snapshot.val());
   });
 }
 
-export { initializeFirebase, pushDataValues, readGames, readImages };
+export { initializeFirebase, readContact };

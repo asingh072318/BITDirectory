@@ -6,27 +6,45 @@ import firebase from "firebase";
 import * as FirebaseUtils from "../Services/Firebase";
 import Actions from "jumpstate";
 import { connect } from "react-redux";
+import { List, ListItem, Avatar } from "react-native-elements";
 // Styles
 import styles from "./Styles/LaunchScreenStyles";
 class LaunchScreen extends Component {
+  constructor(props) {
+    super(props);
+    FirebaseUtils.initializeFirebase();
+  }
+  componentWillMount() {
+    FirebaseUtils.readContact();
+  }
+  renderList = () => {
+    var contact = this.props.vajra.contact;
+    return contact.map((l, i) => {
+      let abc = <Avatar medium rounded title={l.name[0]} />;
+      return (
+        <ListItem
+          key={i}
+          title={l.name}
+          hideChevron
+          leftIcon={abc}
+          titleStyle={{ marginLeft: 15 }}
+        />
+      );
+    });
+  };
   render() {
     return (
-      <View>
-        <Search />
-        <Text>Hello </Text>
-        <Button
-          raised
-          icon={{ name: "home", size: 32 }}
-          buttonStyle={{ backgroundColor: "red", borderRadius: 10 }}
-          textStyle={{ textAlign: "center" }}
-          title={`Welcome to\nReact Native Elements`}
-        />
-        <Text>{this.props.vajra.apiStatus}</Text>
+      <View style={{ backgroundColor: "white" }}>
+        <Search backgroundColor="red" />
+        <ScrollView style={{ backgroundColor: "white" }}>
+          <List style={{ marginTop: 0 }}>
+            {this.renderList()}
+          </List>
+        </ScrollView>
       </View>
     );
   }
 }
-
 
 const mapStateToProps = state => {
   return {
