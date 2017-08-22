@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import { ScrollView, Text, Image, View } from "react-native";
 import Search from "react-native-search-box";
-import { Button } from "react-native-elements";
 import firebase from "firebase";
 import * as FirebaseUtils from "../Services/Firebase";
 import Actions from "jumpstate";
 import { connect } from "react-redux";
 import { List, ListItem, Avatar } from "react-native-elements";
+import Communications from "react-native-communications";
 // Styles
 import styles from "./Styles/LaunchScreenStyles";
 class LaunchScreen extends Component {
@@ -20,6 +20,16 @@ class LaunchScreen extends Component {
   componentWillMount() {
     FirebaseUtils.readContact();
   }
+  checkCall = name => {
+    var contact = this.props.vajra.contact;
+    var num = [];
+    contact.map((l, i) => {
+      if (l.name === name) num = l.number;
+    });
+    if (num.length === 1) {
+      Communications.phonecall(num[0], false);
+    }
+  };
   renderList = () => {
     var contact = this.props.vajra.contact;
     return contact.map((l, i) => {
@@ -43,6 +53,7 @@ class LaunchScreen extends Component {
               marginLeft: 15,
               fontSize: 17
             }}
+            onPress={() => this.checkCall(l.name)}
           />
         );
       }
@@ -53,16 +64,28 @@ class LaunchScreen extends Component {
   };
   render() {
     return (
-      <View style={{ backgroundColor: "white" }}>
-        <Search
-          backgroundColor="red"
-          onChangeText={text => this.setSearch(text)}
-        />
-        <ScrollView style={{ backgroundColor: "white" }}>
-          <List style={{ marginTop: 0 }}>
-            {this.renderList()}
-          </List>
-        </ScrollView>
+      <View style={{ backgroundColor: "white", flex: 1 }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "flex-end",
+            backgroundColor: "#1a237e"
+          }}
+        >
+          <Search
+            backgroundColor="#1a237e"
+            onChangeText={text => this.setSearch(text)}
+            onCancel={() => this.setSearch("")}
+            onDelete={() => this.setSearch("")}
+          />
+        </View>
+        <View style={{ flex: 7 }}>
+          <ScrollView style={{ backgroundColor: "white" }}>
+            <List style={{ marginTop: 0 }}>
+              {this.renderList()}
+            </List>
+          </ScrollView>
+        </View>
       </View>
     );
   }
