@@ -3,19 +3,19 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  Image,
   View,
-  TouchableOpacity
+  ActivityIndicator,
+  NetInfo
 } from "react-native";
 import Search from "react-native-search-box";
-import firebase from "firebase";
 import * as FirebaseUtils from "../Services/Firebase";
-import Actions from "jumpstate";
+import { Actions } from "jumpstate";
 import { connect } from "react-redux";
-import { List, ListItem, Avatar } from "react-native-elements";
+import { List, ListItem, Avatar, Icon } from "react-native-elements";
 import Communications from "react-native-communications";
 import Modal from "react-native-modalbox";
 import randomColor from "randomcolor";
+import ActionButton from "react-native-action-button";
 // Styles
 import styles from "./Styles/LaunchScreenStyles";
 const style = StyleSheet.create({
@@ -27,10 +27,13 @@ const style = StyleSheet.create({
     height: 200,
     width: 300
   },
-
   text: {
     color: "black",
     fontSize: 22
+  },
+  text1: {
+    color: "white",
+    fontSize: 20
   }
 });
 class LaunchScreen extends Component {
@@ -39,12 +42,29 @@ class LaunchScreen extends Component {
     FirebaseUtils.initializeFirebase();
     this.state = {
       search: "",
-      number: []
+      number: [],
+      status: true
     };
   }
   componentWillMount() {
     FirebaseUtils.readContact();
   }
+  componentDidMount() {
+    NetInfo.isConnected.addEventListener("change", this.handleConnectionChange);
+    NetInfo.isConnected.fetch().done(isConnected => {
+      this.setState({ status: isConnected });
+    });
+  }
+
+  componentWillUnmount() {
+    NetInfo.isConnected.removeEventListener(
+      "change",
+      this.handleConnectionChange
+    );
+  }
+  handleConnectionChange = isConnected => {
+    this.setState({ status: isConnected });
+  };
   checkCall = name => {
     var contact = this.props.vajra.contact;
     var num = [];
@@ -82,7 +102,7 @@ class LaunchScreen extends Component {
             leftIcon={abc}
             titleStyle={{
               marginLeft: 15,
-              fontSize: 17
+              fontSize: 15
             }}
             onPress={() => this.checkCall(l.name)}
           />
@@ -92,6 +112,46 @@ class LaunchScreen extends Component {
   };
   setSearch = text => {
     this.setState({ search: text.toLowerCase() });
+  };
+  renderContacts = () => {
+    if (this.state.status === true) {
+      if (this.props.vajra.loader === 0) {
+        return (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <ActivityIndicator size="large" />
+            <Text style={{ color: "#8e1516", fontWeight: "bold" }}>
+              Powered by www.hobdev.com{" "}
+            </Text>
+          </View>
+        );
+      } else {
+        return (
+          <View>
+            <ScrollView style={{ backgroundColor: "white" }}>
+              <List style={{ marginTop: 0 }}>
+                {this.renderList()}
+              </List>
+            </ScrollView>
+            <ActionButton
+              buttonColor="rgba(231,76,60,1)"
+              onPress={() => {
+                this.refreshContact();
+              }}
+              icon={<Icon color="white" name="cached" />}
+            />
+          </View>
+        );
+      }
+    } else {
+      alert("No Internet,Connect to Internet!!!!");
+      return <View />;
+    }
+  };
+  refreshContact = () => {
+    Actions.VajraApp.setLoader();
+    FirebaseUtils.readContact();
   };
   renderContent = () => {
     var num = this.state.number;
@@ -130,22 +190,21 @@ class LaunchScreen extends Component {
           style={{
             flex: 1,
             justifyContent: "flex-end",
-            backgroundColor: "#1a237e"
+            backgroundColor: "black"
           }}
         >
+          <View style={{ alignItems: "center" }}>
+            <Text style={style.text1}>BITDirectory</Text>
+          </View>
           <Search
-            backgroundColor="#1a237e"
+            backgroundColor="#8e1516"
             onChangeText={text => this.setSearch(text)}
             onCancel={() => this.setSearch("")}
             onDelete={() => this.setSearch("")}
           />
         </View>
         <View style={{ flex: 7 }}>
-          <ScrollView style={{ backgroundColor: "white" }}>
-            <List style={{ marginTop: 0 }}>
-              {this.renderList()}
-            </List>
-          </ScrollView>
+          {this.renderContacts()}
         </View>
       </View>
     );
